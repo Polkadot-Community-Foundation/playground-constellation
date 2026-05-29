@@ -1,0 +1,392 @@
+:root {
+  /* Deep Field palette — colors echo the canvas so legend swatches match
+     exactly what's painted on the constellation. */
+  --bg: #00010a;
+  --bg-dim: rgba(0, 1, 10, 0.7);
+  --text: #eef0fa;
+  --text-dim: rgba(238, 240, 250, 0.55);
+  --text-faint: rgba(238, 240, 250, 0.32);
+  --rule: rgba(255, 255, 255, 0.06);
+
+  --app: #ff9bc8;
+  --app-glow: rgba(255, 130, 190, 0.55);
+  --pinned: #ffd97a;
+  --pinned-glow: rgba(255, 200, 90, 0.7);
+  --builder: #7ec6ff;
+  --builder-glow: rgba(120, 190, 255, 0.55);
+
+  --lineage: rgba(126, 224, 194, 0.92);
+  --lineage-glow: rgba(126, 224, 194, 0.5);
+  --ownership: rgba(160, 195, 240, 0.55);
+
+  --xp-green: #7ee0c2;
+  --warn: #ffc04a;
+
+  --mono: "JetBrains Mono Variable", "JetBrains Mono", "IBM Plex Mono", Menlo, monospace;
+  --serif: "Fraunces Variable", "Fraunces", Georgia, serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-weight: 300;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---------- top strip ---------- */
+.top-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  height: 56px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--rule);
+  background: rgba(0, 1, 10, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+.top-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 18px;
+}
+.top-title::before {
+  content: "Constellation";
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 80;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 18px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+.top-stats {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.top-stats span {
+  color: var(--text);
+  font-weight: 400;
+}
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-dim);
+}
+.live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.live.on {
+  color: var(--xp-green);
+}
+.live.on::before {
+  background: var(--xp-green);
+  box-shadow: 0 0 10px var(--xp-green);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- stage: canvas + feed ---------- */
+.stage {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.canvas-wrap {
+  position: relative;
+  flex: 1 1 64%;
+  min-width: 0;
+}
+.feed-pane {
+  flex: 0 0 36%;
+  max-width: 540px;
+  border-left: 1px solid var(--rule);
+  background: linear-gradient(180deg, rgba(0, 1, 10, 0.7), rgba(0, 1, 10, 0.95));
+  overflow: hidden;
+}
+
+/* ---------- event feed ---------- */
+.feed {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 24px 12px;
+  font-family: var(--mono);
+}
+.feed-head {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 400;
+}
+.feed-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 14px;
+  overflow: hidden;
+}
+.feed-row {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 400;
+  animation: feed-in 0.5s ease;
+}
+@keyframes feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.feed-ts {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.feed-tag {
+  /* Plain colored text, not a bordered pill — keeps "DEPLOY" from blowing
+     up the row and matches the old, more readable layout. */
+  color: var(--pinned);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  margin-left: 4px;
+}
+.feed-body {
+  margin-top: 2px;
+}
+.feed-actor {
+  color: var(--app);
+}
+.feed-sym {
+  color: var(--lineage);
+}
+.feed-target {
+  color: var(--text);
+}
+.feed-xp {
+  color: var(--lineage);
+}
+
+/* ---------- headline (lower third) ---------- */
+.headline {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  bottom: 44px;
+  pointer-events: none;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85);
+  animation: feed-in 0.7s ease;
+}
+.headline-text {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 300;
+  font-size: clamp(34px, 4vw, 60px);
+  line-height: 1;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+.headline-meta {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--lineage);
+}
+
+/* ---------- loading ---------- */
+.loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, 60%);
+  text-align: center;
+  font-family: var(--mono);
+}
+.loading-label {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+.loading-bar {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.loading-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lineage), var(--builder));
+  transition: width 0.2s ease;
+}
+.loading-count {
+  margin-top: 10px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------- controls hint ---------- */
+.controls-hint {
+  position: absolute;
+  top: 16px;
+  right: 22px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+  font-weight: 300;
+}
+
+/* ---------- top-left corner stack ---------- */
+.corner-tl {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+/* ---------- mock badge ---------- */
+.mock-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  font-weight: 500;
+  color: var(--warn);
+  border: 1px solid rgba(255, 192, 74, 0.4);
+  padding: 4px 10px;
+  background: rgba(255, 192, 74, 0.06);
+}
+
+/* ---------- legend ---------- */
+.legend {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--text-dim);
+  background: rgba(0, 1, 10, 0.55);
+  border: 1px solid var(--rule);
+  padding: 14px 18px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  display: grid;
+  gap: 10px;
+}
+.lg-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.lg-app {
+  background: var(--app);
+  box-shadow: 0 0 8px 1px var(--app-glow);
+}
+.lg-pinned {
+  background: var(--pinned);
+  box-shadow: 0 0 10px 1px var(--pinned-glow);
+}
+.lg-builder {
+  background: var(--builder);
+  box-shadow: 0 0 8px 1px var(--builder-glow);
+}
+.lg-line {
+  width: 20px;
+  height: 0;
+  flex: 0 0 auto;
+}
+.lg-lineage {
+  border-top: 2.5px solid var(--lineage);
+  box-shadow: 0 0 6px var(--lineage-glow);
+}
+.lg-ownership {
+  /* dashed so it visually matches what the canvas renders */
+  border-top: 1.5px dashed var(--ownership);
+}
+
+/* ---------- node hover tooltip ---------- */
+.node-tooltip {
+  position: absolute;
+  transform: translate(14px, 14px);
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0, 1, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-weight: 400;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  max-width: 460px;
+}
+.node-tooltip-kind {
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.node-tooltip-text {
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+}

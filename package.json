@@ -1,0 +1,65 @@
+{
+  "name": "playground-constellation",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.17.1",
+  "playground:description": "A live big-screen constellation of Polkadot Playground activity for the Web3 Summit Developer Lab.",
+  "playground:tag": "social",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource/dm-mono": "^5.2.7",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/dm-serif-display": "^5.2.8",
+    "@novasamatech/host-api": "^0.7.8",
+    "@novasamatech/product-sdk": "^0.7.8",
+    "@parity/product-sdk-address": "^0.1.1",
+    "@parity/product-sdk-chain-client": "^0.4.2",
+    "@parity/product-sdk-contracts": "^0.5.1",
+    "@parity/product-sdk-descriptors": "^0.4.1",
+    "@parity/product-sdk-host": "^0.4.0",
+    "@parity/product-sdk-keys": "^0.3.0",
+    "@parity/product-sdk-utils": "^0.1.1",
+    "@polkadot-labs/hdkd-helpers": "^0.0.30",
+    "d3-force": "^3.0.0",
+    "polkadot-api": "^2.1.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^25.7.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "happy-dom": "^20.9.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.3",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "_comment_overrides": "Mirrors playground-app: @novasamatech/* are transitive via product-sdk-chain-client/host; pinned to the AsPgas-aware line. @polkadot-api/json-rpc-provider override works around an upstream packaging bug. Keep in lock-step with playground-app.",
+    "overrides": {
+      "@polkadot-api/json-rpc-provider": "^0.2.0",
+      "@novasamatech/host-api": "0.7.9",
+      "@novasamatech/host-papp": "0.7.9",
+      "@novasamatech/product-sdk": "0.7.9-4",
+      "@novasamatech/scale": "0.7.9",
+      "@novasamatech/statement-store": "0.7.9",
+      "@novasamatech/storage-adapter": "0.7.9"
+    }
+  }
+}
