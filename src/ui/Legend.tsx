@@ -17,6 +17,7 @@ const NODE_ITEMS = [
   { cls: "lg-app", label: "App" },
   { cls: "lg-pinned", label: "Tutorial / sample app" },
   { cls: "lg-builder", label: "Builder" },
+  { cls: "lg-dev", label: "Dev account" },
 ];
 
 const EDGE_ITEMS = [

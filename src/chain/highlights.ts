@@ -36,10 +36,10 @@ interface Snapshot {
 }
 
 async function readSnapshot(registry: RegistryContract): Promise<Snapshot> {
-  const [topRes, appsRes, countRes] = await Promise.all([
+  // App count comes from the apps page `total`, so two reads cover everything.
+  const [topRes, appsRes] = await Promise.all([
     registry.getTopBuilders.query(0, TOP_BUILDER_LIMIT),
     registry.getApps.query(0, RECENT_APPS_LIMIT),
-    Promise.resolve(undefined), // app count derived from the apps page total below
   ]);
 
   const top = topRes.success ? topRes.value[0] : undefined;
@@ -69,8 +69,6 @@ async function readSnapshot(registry: RegistryContract): Promise<Snapshot> {
     }
   }
 
-  // Suppress the unused countRes binding above without losing intent.
-  void countRes;
   return { leader, recent, appCount, usernames };
 }
 
@@ -87,7 +85,7 @@ function buildHighlights(snap: Snapshot, ts: number): Highlight[] {
     out.push({
       id: `leader:${snap.leader.address}:${xp}`,
       feedLabel: `${name} leads · ${xp} XP`,
-      headline: `${name} is on top with ${xp} XP`,
+      headline: `${name} leads the leaderboard with ${xp} XP`,
       nodeId: snap.leader.address,
       ts,
     });
@@ -112,7 +110,7 @@ function buildHighlights(snap: Snapshot, ts: number): Highlight[] {
     out.push({
       id: `app-count:${snap.appCount}`,
       feedLabel: `${snap.appCount} apps live`,
-      headline: `${snap.appCount.toLocaleString()} apps published on Playground`,
+      headline: `${snap.appCount.toLocaleString()} apps published`,
       ts,
     });
   }

@@ -16,6 +16,7 @@
 import { isInsideContainerSync } from "@parity/product-sdk-host";
 import { createChainSource } from "./liveSource.ts";
 import { createHighlightsSource } from "./highlights.ts";
+import { withExcludedDomains } from "./filter.ts";
 import { createMockSource } from "./mock.ts";
 import { createDemoSource } from "../demo/demoSource.ts";
 import type { ConstellationSource } from "./source.ts";
@@ -59,18 +60,20 @@ export function selectSources(): SelectedSources {
   if (import.meta.env.VITE_USE_MOCK === "1") {
     return { primary: createMockSource(), mode: "mock", auxiliary: [] };
   }
+  // Live modes: wrap both sources so excluded apps/accounts (e.g. e2e-test
+  // fixtures) never reach the graph, feed, ticker, or totals. See chain/filter.ts.
   if (import.meta.env.VITE_USE_DIRECT === "1") {
     return {
-      primary: createChainSource("direct"),
+      primary: withExcludedDomains(createChainSource("direct")),
       mode: "live",
-      auxiliary: [createHighlightsSource("direct")],
+      auxiliary: [withExcludedDomains(createHighlightsSource("direct"))],
     };
   }
   if (isInsideContainerSync()) {
     return {
-      primary: createChainSource("host"),
+      primary: withExcludedDomains(createChainSource("host")),
       mode: "live",
-      auxiliary: [createHighlightsSource("host")],
+      auxiliary: [withExcludedDomains(createHighlightsSource("host"))],
     };
   }
   return { primary: createMockSource(), mode: "mock", auxiliary: [] };

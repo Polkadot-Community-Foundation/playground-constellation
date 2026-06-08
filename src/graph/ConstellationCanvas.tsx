@@ -175,7 +175,7 @@ export function ConstellationCanvas({ graphRef, effectsRef, versionRef, onHover 
         }
         layout.tick();
         if (!manual) {
-          // Reserve a bottom band for the headline so nodes stay above it.
+          // Reserve a bottom band for the ticker so nodes stay above it.
           const insetBottom = Math.min(height * 0.26, 200);
           const target = computeFit(layout, graph, width, height, insetBottom);
           view = lerpViewport(view, target, 0.05);

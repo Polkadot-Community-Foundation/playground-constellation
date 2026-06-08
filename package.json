@@ -21,18 +21,18 @@
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/dm-serif-display": "^5.2.8",
-    "@novasamatech/host-api": "^0.7.8",
-    "@novasamatech/product-sdk": "^0.7.8",
+    "@novasamatech/host-api": "0.8.6",
+    "@novasamatech/host-api-wrapper": "0.8.6",
     "@parity/product-sdk-address": "^0.1.1",
-    "@parity/product-sdk-chain-client": "^0.4.2",
-    "@parity/product-sdk-contracts": "^0.5.1",
-    "@parity/product-sdk-descriptors": "^0.4.1",
-    "@parity/product-sdk-host": "^0.4.0",
-    "@parity/product-sdk-keys": "^0.3.0",
+    "@parity/product-sdk-chain-client": "^0.6.1",
+    "@parity/product-sdk-contracts": "^0.7.2",
+    "@parity/product-sdk-descriptors": "^0.5.2",
+    "@parity/product-sdk-host": "^0.7.1",
+    "@parity/product-sdk-keys": "^0.3.5",
     "@parity/product-sdk-utils": "^0.1.1",
     "@polkadot-labs/hdkd-helpers": "^0.0.30",
     "d3-force": "^3.0.0",
-    "polkadot-api": "^2.1.3",
+    "polkadot-api": "^2.1.5",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -51,15 +51,11 @@
     "vitest": "^3.2.4"
   },
   "pnpm": {
-    "_comment_overrides": "Mirrors playground-app: @novasamatech/* are transitive via product-sdk-chain-client/host; pinned to the AsPgas-aware line. @polkadot-api/json-rpc-provider override works around an upstream packaging bug. Keep in lock-step with playground-app.",
+    "_comment_overrides": "@polkadot-api/json-rpc-provider: upstream packaging-bug workaround (mirrors product-sdk's monorepo). @novasamatech/host-api*: host-api is the wire protocol shared with the Polkadot Desktop host; the latest Desktop bundles 0.8.4, so we pin the whole 0.8.x line to the latest stable patch (0.8.6) — 0.8.x releases are mutually wire-compatible (0.8.4 changed the handshake; 0.8.4–0.8.6 are the post-change group). Don't cross to 0.9.x until Desktop does. (The old 0.8.3 cap was for Desktop 0.4.1, which shipped 0.8.0 — now superseded.)",
     "overrides": {
       "@polkadot-api/json-rpc-provider": "^0.2.0",
-      "@novasamatech/host-api": "0.7.9",
-      "@novasamatech/host-papp": "0.7.9",
-      "@novasamatech/product-sdk": "0.7.9-4",
-      "@novasamatech/scale": "0.7.9",
-      "@novasamatech/statement-store": "0.7.9",
-      "@novasamatech/storage-adapter": "0.7.9"
+      "@novasamatech/host-api": "0.8.6",
+      "@novasamatech/host-api-wrapper": "0.8.6"
     }
   }
 }
