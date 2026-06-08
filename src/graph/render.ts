@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { isDevAccount } from "../config.ts";
 import type { Graph, GraphNode } from "../model/graph.ts";
 import { EFFECT_DURATION, type Effect } from "./effects.ts";
 import type { ForceLayout } from "./forceLayout.ts";
@@ -47,12 +48,19 @@ const PINNED: Palette = {
   halo: "rgba(255, 200, 90, 0.7)",
   spike: "rgba(255, 220, 140, 0.85)",
 };
+// Dev-signer accounts: a muted slate so they're clearly distinct from real
+// cyan builders (reads as "ours / system") without disappearing.
+const DEV: Palette = {
+  core: "#aab4c6",
+  halo: "rgba(135, 150, 180, 0.42)",
+  spike: "rgba(165, 180, 210, 0.5)",
+};
 
 const RECENT_MS = 14000;
 const BG_COLOR = "#00010A";
 
 function paletteFor(node: GraphNode): Palette {
-  if (node.kind === "builder") return BUILDER;
+  if (node.kind === "builder") return isDevAccount(node.id) ? DEV : BUILDER;
   return node.pinned ? PINNED : APP;
 }
 
@@ -62,7 +70,7 @@ function easeOut(t: number): number {
 
 /**
  * Target viewport that fits all node positions into the canvas with padding.
- * `insetBottom` reserves a band at the bottom (for the headline) so nodes are
+ * `insetBottom` reserves a band at the bottom (for the ticker) so nodes are
  * fitted into the region *above* it and never render behind the text.
  */
 export function computeFit(
@@ -455,13 +463,27 @@ const LINEAGE_STYLE: CometStyle = {
   headHalo: "rgba(126, 224, 194, 0.9)",
   shadow: "rgba(126, 224, 194, 0.8)",
 };
+// Warm gold for highlight + ambient comets — reads as distinct from the
+// white-cyan (star) and mint (lineage) comets fired by real on-chain events,
+// matching the pinned-tutorial gold elsewhere in the palette.
+const GOLD_STYLE: CometStyle = {
+  tail: "rgba(255, 209, 120,",
+  head: "#fff6e0",
+  headHalo: "rgba(255, 209, 120, 0.9)",
+  shadow: "rgba(255, 199, 90, 0.8)",
+};
 
+// `scale` shrinks the whole comet (head + tail + sparkles) and `alphaMul`
+// dims it, so ambient drifts read as fainter/smaller than live-event comets
+// without duplicating the drawing code.
 function drawComet(
   ctx: CanvasRenderingContext2D,
   curve: Curve,
   t: number,
   style: CometStyle,
   fx: Effect,
+  scale = 1,
+  alphaMul = 1,
 ): void {
   const head = pointOn(curve, t);
 
@@ -473,8 +495,8 @@ function drawComet(
     if (tt <= 0) break;
     const a = pointOn(curve, tt);
     const b = pointOn(curve, Math.max(0, tt - 0.012));
-    const alpha = (1 - i / SAMPLES) * 0.55 * (1 - t * 0.3);
-    const w = Math.max(0.4, 3.6 * (1 - i / SAMPLES));
+    const alpha = (1 - i / SAMPLES) * 0.55 * (1 - t * 0.3) * alphaMul;
+    const w = Math.max(0.4, 3.6 * scale * (1 - i / SAMPLES));
     ctx.strokeStyle = `${style.tail}${alpha.toFixed(3)})`;
     ctx.lineWidth = w;
     ctx.beginPath();
@@ -491,13 +513,13 @@ function drawComet(
   }
   if (t < 0.95 && Math.random() < 0.88) {
     sparkles.push({
-      x: head.x + (Math.random() - 0.5) * 4,
-      y: head.y + (Math.random() - 0.5) * 4,
+      x: head.x + (Math.random() - 0.5) * 4 * scale,
+      y: head.y + (Math.random() - 0.5) * 4 * scale,
       vx: (Math.random() - 0.5) * 0.45,
       vy: (Math.random() - 0.5) * 0.45,
       life: 1,
       decay: 0.012 + Math.random() * 0.02,
-      size: 0.6 + Math.random() * 1.5,
+      size: (0.6 + Math.random() * 1.5) * scale,
     });
   }
   for (let i = sparkles.length - 1; i >= 0; i--) {
@@ -509,7 +531,7 @@ function drawComet(
       sparkles.splice(i, 1);
       continue;
     }
-    ctx.fillStyle = `rgba(255,255,255,${(p.life * 0.9).toFixed(3)})`;
+    ctx.fillStyle = `rgba(255,255,255,${(p.life * 0.9 * alphaMul).toFixed(3)})`;
     ctx.shadowColor = style.shadow;
     ctx.shadowBlur = 6;
     ctx.beginPath();
@@ -519,18 +541,21 @@ function drawComet(
   }
 
   // Head: bright pinpoint with a soft halo.
-  const headGrad = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 14);
+  const haloR = 14 * scale;
+  ctx.globalAlpha = alphaMul;
+  const headGrad = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, haloR);
   headGrad.addColorStop(0, "#ffffff");
   headGrad.addColorStop(0.3, style.headHalo);
   headGrad.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = headGrad;
   ctx.beginPath();
-  ctx.arc(head.x, head.y, 14, 0, Math.PI * 2);
+  ctx.arc(head.x, head.y, haloR, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = style.head;
   ctx.beginPath();
-  ctx.arc(head.x, head.y, 2.4, 0, Math.PI * 2);
+  ctx.arc(head.x, head.y, 2.4 * scale, 0, Math.PI * 2);
   ctx.fill();
+  ctx.globalAlpha = 1;
 }
 
 function drawEffects(
@@ -558,8 +583,16 @@ function drawEffects(
       const b = layout.position(fx.to);
       if (!a || !b) continue;
       const curve = bezier(a.x, a.y, b.x, b.y);
-      const style = fx.type === "lineage" ? LINEAGE_STYLE : STAR_STYLE;
-      drawComet(ctx, curve, t, style, fx);
+      // Real on-chain events: white-cyan (star) / mint (lineage), full size.
+      // Highlights + ambient drift: gold, shrunk and dimmed so they read as
+      // "alive but not a fresh event".
+      if (fx.type === "highlightStar") {
+        drawComet(ctx, curve, t, GOLD_STYLE, fx, 0.85, 0.9);
+      } else if (fx.type === "ambientStar") {
+        drawComet(ctx, curve, t, GOLD_STYLE, fx, 0.6, 0.6);
+      } else {
+        drawComet(ctx, curve, t, fx.type === "lineage" ? LINEAGE_STYLE : STAR_STYLE, fx);
+      }
     }
   }
 }
