@@ -48,7 +48,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   },
   "pnpm": {
     "_comment_overrides": "@polkadot-api/json-rpc-provider: upstream packaging-bug workaround (mirrors product-sdk's monorepo). @novasamatech/host-api*: host-api is the wire protocol shared with the Polkadot Desktop host; the latest Desktop bundles 0.8.4, so we pin the whole 0.8.x line to the latest stable patch (0.8.6) — 0.8.x releases are mutually wire-compatible (0.8.4 changed the handshake; 0.8.4–0.8.6 are the post-change group). Don't cross to 0.9.x until Desktop does. (The old 0.8.3 cap was for Desktop 0.4.1, which shipped 0.8.0 — now superseded.)",
