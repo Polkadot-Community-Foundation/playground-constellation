@@ -107,6 +107,22 @@ Copy `.env.example` to `.env.local` and tweak as needed.
 | `VITE_USE_DIRECT=1` | Connect directly to Paseo Asset Hub (`wss://paseo-asset-hub-next-rpc.polkadot.io`) instead of routing through the host |
 | `VITE_PLAYGROUND_REGISTRY_PACKAGE` | Override the registry package name (default `@w3s/playground-registry`) |
 
+## Security
+
+> [!WARNING]
+> The following is a prototype, reference implementation, and proof-of-concept. This open source code is provided for research, experimentation, and developer education only. This code has not been audited, is actively experimental, and may contain bugs, vulnerabilities, or incomplete features. Use at your own risk.
+
+This repository contains reference / proof-of-concept code and patterns. It is intended for reference and experimentation, not as a production-ready artefact. Unless a specific release states otherwise, it has **not** received a full security audit.
+
+Before deploying this for real use cases, you are responsible for:
+
+- Reviewing the code yourself — we publish a reference, not a hardened production build.
+- Checking that dependencies are up to date and free of known vulnerabilities.
+- Securing your own fork or deployment environment (keys, secrets, network configuration).
+- Tracking the latest tagged release/commits for security fixes; older releases are not backported.
+
+For Parity's security disclosure process and Bug Bounty programme, see https://parity.io/bug-bounty.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).

@@ -4,4 +4,8 @@ dist
 *.tsbuildinfo
 .superpowers
 .DS_Store
-.env.local
+.env*
+!.env.example
+.claude/sessions/
+.claude/cache/
+.claude/settings.local.json
