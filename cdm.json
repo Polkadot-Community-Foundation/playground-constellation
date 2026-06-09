@@ -7,8 +7,8 @@
   },
   "contracts": {
     "@mock/reputation": {
-      "version": 1,
-      "address": "0x8B0f2e84168C753ef555beCcBbD6C676bcBC2F75",
+      "version": 2,
+      "address": "0x56047c64075bF9D71249143FBAc5B28816ce90Bb",
       "abi": [
         {
           "type": "constructor",
@@ -159,11 +159,11 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzacecq7mz5yfa5m2y73jbiix5x6fck4bs277uiha2gcit45p5vjjd2tq"
+      "metadataCid": "bafk2bzacedgphx3l52fa7wdkmq32f6muuo4w6envzuknf76npjd7tbmnekupk"
     },
     "@polkadot/contexts": {
-      "version": 1,
-      "address": "0x4DE7bB7843279Ec3f9c31f81e1f8981E66C8fc19",
+      "version": 2,
+      "address": "0xD7bad6D466339F62BaF0196f4b43168c8Ab07e89",
       "abi": [
         {
           "type": "constructor",
@@ -298,11 +298,11 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzaceb3agpfwowhauon7se64qstzno7ua5wigyq7i6s3tl5vbfthjzmey"
+      "metadataCid": "bafk2bzacebfplzp6cwusdwldowoq5jgtgtwmnauehio6cn34wvmdas6x2l5ns"
     },
     "@w3s/playground-registry": {
-      "version": 3,
-      "address": "0x9938255f40485B25641C9bc263aa8E0bAE8c202d",
+      "version": 6,
+      "address": "0x82db2A7013ee5bDC69e12CC998dDb3A3eca1Ce4F",
       "abi": [
         {
           "type": "constructor",
@@ -1429,11 +1429,11 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzaceafacjrrftyijid6r3hvk54mhpdsoizrj6lxvmqfba5ufndlk2w6o"
+      "metadataCid": "bafk2bzacedzwo2736o7g4j5epc752vf7vw5dfhec3yhtxwatc53pj4xcpfemy"
     },
     "@staging/playground-registry": {
-      "version": 10,
-      "address": "0x6C00b7b989C40C74b7F8E8f3a66C85d101137403",
+      "version": 24,
+      "address": "0x3a08E6af878F5356D498dD3F60c1005Aa7722F94",
       "abi": [
         {
           "type": "constructor",
@@ -2560,7 +2560,7 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzacedda7rkuwscxliboxrpud6wmycqlocoimf7757evhtku46fru5a26"
+      "metadataCid": "bafk2bzacea4vgdsfu5apsbnrljwujnzn73ocj4xwo3uoevin3rfgii46rmacu"
     }
   },
   "registry": "0xf62c2ece29cd8df2e10040ecfa5a894a5c5d9cb0"
