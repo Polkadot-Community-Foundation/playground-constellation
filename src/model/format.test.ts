@@ -49,7 +49,7 @@ describe("describeEvent", () => {
       { kind: "mod", app: "my-ballot.dot", actor: ALICE, source: "the-ballot.dot", blockKey: "1" },
       graphWith(),
     );
-    expect(line).toMatchObject({ tag: "MOD", actorLabel: "alice", targetLabel: "the-ballot.dot", xp: 1 });
+    expect(line).toMatchObject({ tag: "MOD", actorLabel: "alice", targetLabel: "the-ballot.dot", xp: 50 });
   });
 
   it("formats a deploy line with the app as the target", () => {
@@ -57,15 +57,15 @@ describe("describeEvent", () => {
       { kind: "deploy", app: "chess.dot", actor: ALICE, blockKey: "1" },
       graphWith(),
     );
-    expect(line).toMatchObject({ tag: "DEPLOY", actorLabel: "alice", targetLabel: "chess.dot", xp: 2 });
+    expect(line).toMatchObject({ tag: "DEPLOY", actorLabel: "alice", targetLabel: "chess.dot", xp: 100 });
   });
 
-  it("adds the moddable bonus to a moddable deploy (+3)", () => {
+  it("awards a flat deploy XP regardless of moddability (no bonus)", () => {
     const line = describeEvent(
       { kind: "deploy", app: "chess.dot", actor: ALICE, moddable: true, blockKey: "1" },
       graphWith(),
     );
-    expect(line.xp).toBe(3);
+    expect(line.xp).toBe(100);
   });
 
   it("formats a star line", () => {
@@ -73,7 +73,7 @@ describe("describeEvent", () => {
       { kind: "star", app: "the-ballot.dot", actor: ALICE, blockKey: "1" },
       graphWith(),
     );
-    expect(line).toMatchObject({ tag: "STAR", targetLabel: "the-ballot.dot", xp: 1 });
+    expect(line).toMatchObject({ tag: "STAR", targetLabel: "the-ballot.dot", xp: 10 });
   });
 });
 

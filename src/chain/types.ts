@@ -49,7 +49,11 @@ export interface LogicalEvent {
   app: string;
   actor?: string;
   source?: string;
-  /** True when the deploy was moddable (ModdablePointAwarded fired) → +1 XP. */
+  /**
+   * True when the deploy was moddable (ModdablePointAwarded fired). Tracked for
+   * labelling only — under absolute-value scoring (issue #286) moddability no
+   * longer affects the XP award; see xpFor in model/format.ts.
+   */
   moddable?: boolean;
   blockKey: string;
 }

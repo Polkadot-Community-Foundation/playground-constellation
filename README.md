@@ -36,7 +36,7 @@ Demo mode reports as a distinct `demo` mode so it never contaminates the live ca
 - **Top bar** — running totals (apps, stars) and a `LIVE` indicator once the cold-load snapshot resolves.
 - **Constellation** — pinned tutorials in gold with Webb-style four-point diffraction spikes, top builders in cyan, apps in pink. Edges are dashed slate for ownership (builder → app) and solid mint for lineage (source → child mod). Recently-active nodes glow more brightly.
 - **Shooting stars** — every `star` and `mod` event traces a Bezier arc from the actor to the target with a tapered comet tail and sparkle particles drifting and fading along the path.
-- **Headline** — Fraunces serif headline in the lower third updates with every event ("alice just modded the-ballot.dot · +1 XP"). During quiet stretches the highlights source surfaces leaderboard pulses ("alice leads · 412 XP").
+- **Headline** — Fraunces serif headline in the lower third updates with every event ("alice just modded the-ballot.dot · +50 XP"). During quiet stretches the highlights source surfaces leaderboard pulses ("alice leads · 412 XP").
 - **Event feed** — right-hand column with `HH:MM:SS [TAG] actor → target +xp` rows, fading in newest-first.
 
 ## Architecture

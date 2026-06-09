@@ -91,15 +91,16 @@ export const EXCLUDE_ACCOUNTS: string[] =
   envList(import.meta.env?.VITE_EXCLUDE_ACCOUNTS as string | undefined) ?? [];
 
 /**
- * Contract-actual XP award amounts (from registry/lib.rs):
- *   deploy/launch = 2, +1 if moddable; mod credit = 1; star = 1.
+ * Contract-actual XP award amounts (absolute-value scoring, issue #286; must
+ * match registry/lib.rs DEPLOY_XP / MOD_RECEIVED_XP / STAR_RECEIVED_XP):
+ *   deploy = 100 (each of the first two public deploys, 3rd+ = 0);
+ *   mod credit = 50; star = 10.
  * These are the real on-chain deltas shown on screen.
  */
 export const XP_BASE = {
-  deploy: 2,
-  moddableBonus: 1,
-  mod: 1,
-  star: 1,
+  deploy: 100,
+  mod: 50,
+  star: 10,
 } as const;
 
 /**

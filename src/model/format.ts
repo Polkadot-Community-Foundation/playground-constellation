@@ -44,13 +44,13 @@ export interface FeedEntry {
 
 /**
  * Contract-actual XP for the event, times the display multiplier (config.ts).
- * Deploy is 2, or 3 when moddable. Mod credit and star are each 1. Other
- * kinds carry no XP label.
+ * Deploy is 100, mod credit 50, star 10 (absolute-value scoring, issue #286;
+ * deploy is flat — no moddable bonus). Other kinds carry no XP label.
  */
 function xpFor(e: LogicalEvent): number | undefined {
   switch (e.kind) {
     case "deploy":
-      return (XP_BASE.deploy + (e.moddable ? XP_BASE.moddableBonus : 0)) * XP_MULTIPLIER.deploy;
+      return XP_BASE.deploy * XP_MULTIPLIER.deploy;
     case "mod":
       return XP_BASE.mod * XP_MULTIPLIER.mod;
     case "star":
