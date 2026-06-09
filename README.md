@@ -127,4 +127,4 @@ For Parity's security disclosure process and Bug Bounty programme, see https://p
 
 Apache-2.0. See [LICENSE](LICENSE).
 
-Copyright 2026 Parity Technologies.
+Copyright (C) Parity Technologies (UK) Ltd.
