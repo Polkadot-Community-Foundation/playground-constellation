@@ -301,8 +301,8 @@
       "metadataCid": "bafk2bzacebfplzp6cwusdwldowoq5jgtgtwmnauehio6cn34wvmdas6x2l5ns"
     },
     "@w3s/playground-registry": {
-      "version": 6,
-      "address": "0x82db2A7013ee5bDC69e12CC998dDb3A3eca1Ce4F",
+      "version": 7,
+      "address": "0xeB814656e2466b5A8e613F8121D57c75F684A35D",
       "abi": [
         {
           "type": "constructor",
@@ -1429,11 +1429,11 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzacedzwo2736o7g4j5epc752vf7vw5dfhec3yhtxwatc53pj4xcpfemy"
+      "metadataCid": "bafk2bzaceavewu2aczp237db4dtzgej4tkjavhwfczp3jgaottwzzgpzuadry"
     },
     "@staging/playground-registry": {
-      "version": 24,
-      "address": "0x3a08E6af878F5356D498dD3F60c1005Aa7722F94",
+      "version": 29,
+      "address": "0x84921c6Eed627D989058e54FD00541413F532DF9",
       "abi": [
         {
           "type": "constructor",
@@ -2560,7 +2560,7 @@
           "stateMutability": "view"
         }
       ],
-      "metadataCid": "bafk2bzacea4vgdsfu5apsbnrljwujnzn73ocj4xwo3uoevin3rfgii46rmacu"
+      "metadataCid": "bafk2bzacederotgwat45li76spdmniqbkwtxnhajuhgjvqdwdwzi3afjqlavm"
     }
   },
   "registry": "0xf62c2ece29cd8df2e10040ecfa5a894a5c5d9cb0"
