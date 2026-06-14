@@ -7,6 +7,7 @@ dist
 .DS_Store
 .env*
 !.env.example
+!.env.production
 .claude/sessions/
 .claude/cache/
 .claude/settings.local.json
