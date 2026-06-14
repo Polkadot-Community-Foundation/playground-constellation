@@ -13,15 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** Chain preset passed to getChainAPI (host-routed). */
-export const CHAIN = "paseo" as const;
+/**
+ * Chain preset passed to getChainAPI (host-routed path). Summit is the target:
+ * @parity/product-sdk-chain-client (>=0.7.0) ships a `summit` environment and
+ * @parity/product-sdk-descriptors (>=0.6.0) exports `summit-asset-hub`, so the
+ * in-host path resolves the Summit Asset Hub descriptor (genesis 0xf388dc6d…) —
+ * no Paseo genesis baked in. Matches playground-app-community.
+ */
+export const CHAIN = "summit" as const;
 
 /**
- * Asset Hub WS endpoint for the DEV-ONLY direct-RPC mode (VITE_USE_DIRECT=1),
- * used to view real data in a plain browser outside the host. The production
- * path inside Polkadot Desktop never uses this — it routes through the host.
+ * Asset Hub WS endpoint for the direct-RPC mode (VITE_USE_DIRECT=1).
+ *
+ * The deployed kiosk bundle forces direct mode via .env.production so it shows
+ * real Summit data in a plain browser / via the IPFS gateway, outside Polkadot
+ * Desktop (a big-screen kiosk is not necessarily inside the host). The typed
+ * API is built from the Summit descriptor (client.ts → summit_asset_hub), so
+ * direct mode decodes Summit's own runtime — not Paseo metadata. The in-host
+ * path (getChainAPI(CHAIN)) is also Summit-correct now; direct mode is the
+ * deliberate kiosk choice, no longer a workaround for a missing descriptor.
  */
-export const ASSET_HUB_WS = "wss://paseo-asset-hub-next-rpc.polkadot.io";
+export const ASSET_HUB_WS = "wss://summit-asset-hub-rpc.polkadot.io";
 
 /**
  * Max nodes kept in the live graph. Bounds memory, the localStorage cache,
