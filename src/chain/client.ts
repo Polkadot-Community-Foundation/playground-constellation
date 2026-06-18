@@ -16,11 +16,12 @@
 import { getChainAPI } from "@parity/product-sdk-chain-client";
 import { ContractManager, type CdmJson } from "@parity/product-sdk-contracts";
 import { summit_asset_hub } from "@parity/product-sdk-descriptors/summit-asset-hub";
-import { seedToAccount } from "@parity/product-sdk-keys";
+import { ss58Encode } from "@parity/product-sdk-address";
 import { createClient, type PolkadotClient, type TypedApi } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws";
 import cdmJson from "../../cdm.json" with { type: "json" };
 import { ASSET_HUB_WS, CHAIN, REGISTRY_PACKAGE } from "../config.ts";
+import type { IndividualityClient } from "./peopleIdentity.ts";
 import type { QueryResult, RegistryContract } from "./registryContract.ts";
 
 export type ChainMode = "host" | "direct";
@@ -30,31 +31,43 @@ export interface ChainHandle {
   api: AssetHubApi;
   registry: RegistryContract;
   registryAddress: string;
+  // Host-routed People/Individuality chain, used to resolve DotNS usernames
+  // from registry root pubkeys. `null` in direct (dev) mode, where there is no
+  // host client — callers fall back to short addresses. We never open a raw
+  // People-chain WS (host-only access).
+  individuality: IndividualityClient | null;
 }
 
 const handles = new Map<ChainMode, Promise<ChainHandle>>();
 
-// Team deploy SURI — mapped on Paseo Next, used as the read origin so dry-run
-// calls don't fail with Revive::AccountUnmapped. Same mnemonic that lives in
-// playground-app/scripts/check-migration.ts; not secret, used here only to
-// supply an SS58 to the dispatcher — never to sign.
-const TEAM_SURI = "ensure coffee ripple degree senior grunt unit seek defense year spoon fix";
-
-/** Read origin for queries: team SURI's SS58 (matches playground-app scripts). */
+/**
+ * Read origin for queries: pallet-revive's own keyless pallet account —
+ * `PalletId(*b"py/reviv").into_account_truncating()`, i.e. `b"modlpy/reviv"`
+ * followed by 20 zero bytes. Revive query nodes accept any SS58 as origin for
+ * read-only dry-runs; this one is seed-free, semantically neutral, and always
+ * mapped on chain. Mirrors playground-cli's `READ_ONLY_QUERY_ORIGIN` and
+ * playground-app. Never used to sign — the kiosk is read-only.
+ */
 function readOrigin(): string {
-  return seedToAccount(TEAM_SURI, "").ss58Address;
+  const pk = new Uint8Array(32);
+  pk.set(new TextEncoder().encode("modlpy/reviv"));
+  return ss58Encode(pk);
 }
 
 async function build(mode: ChainMode): Promise<ChainHandle> {
   let raw: PolkadotClient;
   let api: AssetHubApi;
+  // Host-routed People-chain client for username resolution; null in direct mode.
+  let individuality: IndividualityClient | null = null;
   if (mode === "host") {
     // Production: route through the Polkadot host container.
     const client = await getChainAPI(CHAIN);
     raw = client.raw.assetHub;
     api = client.assetHub;
+    individuality = client.individuality as unknown as IndividualityClient;
   } else {
     // Dev-only: connect directly to the RPC to view real data in a browser.
+    // No host means no People chain — usernames degrade to short addresses.
     raw = createClient(getWsProvider(ASSET_HUB_WS));
     api = raw.getTypedApi(summit_asset_hub);
   }
@@ -94,7 +107,7 @@ async function build(mode: ChainMode): Promise<ChainHandle> {
       ? "(live matches snapshot)"
       : "(live DIFFERS from snapshot — snapshot is stale)",
   );
-  return { api, registry, registryAddress };
+  return { api, registry, registryAddress, individuality };
 }
 
 /** Connect (host or direct) and build the typed registry handle. Cached per mode. */

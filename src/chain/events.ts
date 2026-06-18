@@ -15,6 +15,13 @@
 
 import { bytesToHex, keccak256, utf8ToBytes } from "@parity/product-sdk-utils";
 
+// These names are the canonical source of truth for event topics: each topic
+// is `keccak256(name)`, so a name must match the contract's emitted event
+// exactly. cdm.json's ABI is functions-only (revive/PolkaVM events aren't in
+// the Solidity ABI array), so it CANNOT verify these — the authority is the
+// registry contract (`lib.rs` in paritytech/playground-app) and that repo's
+// `utils/event-stream/registryEvents.ts`. A rename there silently breaks
+// decoding here with no test failure; keep them in sync on every redeploy.
 /** All event names the registry emits. Order is not significant. */
 export const EVENT_NAMES = [
   "Published",
@@ -30,8 +37,8 @@ export const EVENT_NAMES = [
   "ModPointAwarded",
   "StarPointAwarded",
   "StarPointRefunded",
-  "UsernameSet",
-  "UsernameCleared",
+  "IdentityLinked",
+  "IdentityCleared",
 ] as const;
 
 export type RegistryEvent = (typeof EVENT_NAMES)[number];
@@ -51,13 +58,14 @@ export const TYPED_PAYLOAD_EVENTS: ReadonlySet<RegistryEvent> = new Set<Registry
 ]);
 
 /**
- * Username events carry the username string as raw UTF-8 bytes. The chain
- * doesn't include the affected address in the event, so the listener must
- * batch-resolve usernames for known builders to discover who changed.
+ * Identity events (registry v17 `set_identity` / `clear_identity`). Payload is
+ * `IdentityEvent { recipient: Address(20), root_pubkey: [u8;32] }` — the
+ * affected address IS included (unlike the old username events), so the live
+ * listener can relabel just that address (see `decodeIdentityRecipient`).
  */
-export const USERNAME_EVENTS: ReadonlySet<RegistryEvent> = new Set<RegistryEvent>([
-  "UsernameSet",
-  "UsernameCleared",
+export const IDENTITY_EVENTS: ReadonlySet<RegistryEvent> = new Set<RegistryEvent>([
+  "IdentityLinked",
+  "IdentityCleared",
 ]);
 
 /** `topic[0]` for an event: keccak256 of the bare event name (matches the contract). */

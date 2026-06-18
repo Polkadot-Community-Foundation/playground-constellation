@@ -29,9 +29,10 @@ export interface LiveEvent {
 }
 
 /**
- * A live builder relabel — fired when UsernameSet/UsernameCleared on chain
- * changes the display name for an existing builder node. `username: null`
- * means the builder cleared their name and should fall back to short-addr.
+ * A live builder relabel — fired when an IdentityLinked/IdentityCleared event
+ * on chain changes the display name for an existing builder node. `username:
+ * null` means the builder cleared their identity and should fall back to
+ * short-addr.
  */
 export interface RelabelEvent {
   address: string;

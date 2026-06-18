@@ -13,97 +13,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { describe, expect, it, vi } from "vitest";
-import { diffUsernames } from "./live.ts";
+import { describe, expect, it } from "vitest";
+import { emitRelabels, identityRecipientsInBlock } from "./live.ts";
+import { topicForEvent } from "./events.ts";
 import type { RelabelEvent } from "./source.ts";
 
-const A = "0x" + "a".repeat(40);
-const B = "0x" + "b".repeat(40);
-const C = "0x" + "c".repeat(40);
+const TARGET = "0x" + "f".repeat(40);
+const RECIPIENT = "0x" + "a".repeat(40);
 
-function collect(): { events: RelabelEvent[]; emit: (r: RelabelEvent) => void } {
-  const events: RelabelEvent[] = [];
-  return { events, emit: (r) => events.push(r) };
+/** Build a ContractEmitted-shaped event. `data` defaults to recipient(20)+root(32). */
+function ev(eventName: string, contract = TARGET, recipientByte = 0xaa) {
+  const data = Uint8Array.from([...Array(20).fill(recipientByte), ...Array(32).fill(0xcd)]);
+  return { payload: { contract, topics: [topicForEvent(eventName as never)], data } };
 }
 
-describe("diffUsernames", () => {
-  it("emits nothing on the baseline poll (prev=null)", () => {
-    const { events, emit } = collect();
-    diffUsernames(null, new Map([[A, "alice"]]), 1, emit);
-    expect(events).toEqual([]);
+describe("identityRecipientsInBlock", () => {
+  it("collects the recipient of an IdentityLinked event", () => {
+    const out = identityRecipientsInBlock([ev("IdentityLinked")], TARGET);
+    expect([...out]).toEqual([RECIPIENT]);
   });
 
-  it("emits a relabel when an existing username changes", () => {
-    const { events, emit } = collect();
-    diffUsernames(
-      new Map([[A, "alice"]]),
-      new Map([[A, "alicia"]]),
-      42,
-      emit,
-    );
-    expect(events).toEqual([{ address: A, username: "alicia", ts: 42 }]);
+  it("collects the recipient of an IdentityCleared event", () => {
+    const out = identityRecipientsInBlock([ev("IdentityCleared")], TARGET);
+    expect([...out]).toEqual([RECIPIENT]);
   });
 
-  it("emits null when a username is cleared", () => {
-    const { events, emit } = collect();
-    diffUsernames(
-      new Map([[A, "alice"]]),
-      new Map([[A, null]]),
-      7,
-      emit,
-    );
-    expect(events).toEqual([{ address: A, username: null, ts: 7 }]);
+  it("ignores events emitted by a different contract", () => {
+    const out = identityRecipientsInBlock([ev("IdentityLinked", "0x" + "1".repeat(40))], TARGET);
+    expect(out.size).toBe(0);
   });
 
-  it("emits a relabel when a newly-tracked builder gains a name", () => {
-    const { events, emit } = collect();
-    diffUsernames(
-      new Map([[A, "alice"]]),
-      new Map([
-        [A, "alice"],
-        [B, "bob"],
-      ]),
-      9,
-      emit,
-    );
-    expect(events).toEqual([{ address: B, username: "bob", ts: 9 }]);
+  it("ignores non-identity events", () => {
+    const out = identityRecipientsInBlock([ev("Published"), ev("StarPointAwarded")], TARGET);
+    expect(out.size).toBe(0);
   });
 
-  it("emits a null relabel when an address falls out of the top-N with a name", () => {
-    const { events, emit } = collect();
-    diffUsernames(
-      new Map([
-        [A, "alice"],
-        [B, "bob"],
-      ]),
-      new Map([[A, "alice"]]),
-      11,
-      emit,
-    );
-    expect(events).toEqual([{ address: B, username: null, ts: 11 }]);
-  });
-
-  it("does not emit when an address falls out of top-N without a name", () => {
-    const { events, emit } = collect();
-    diffUsernames(
-      new Map([
-        [A, "alice"],
-        [C, null],
-      ]),
-      new Map([[A, "alice"]]),
-      11,
-      emit,
-    );
-    expect(events).toEqual([]);
-  });
-
-  it("no-ops when nothing changes", () => {
-    const { events, emit } = collect();
-    const same = new Map([[A, "alice"]]);
-    diffUsernames(same, new Map(same), 0, emit);
-    expect(events).toEqual([]);
+  it("dedupes repeated recipients within a block", () => {
+    const out = identityRecipientsInBlock([ev("IdentityLinked"), ev("IdentityCleared")], TARGET);
+    expect([...out]).toEqual([RECIPIENT]);
   });
 });
 
-// Sanity: vi import keeps node test runner happy if we later mock anything.
-void vi;
+describe("emitRelabels", () => {
+  it("emits one relabel per resolved address, names and clears alike", () => {
+    const events: RelabelEvent[] = [];
+    emitRelabels({ [RECIPIENT]: "alice", "0xbeef": null }, 42, (r) => events.push(r));
+    expect(events).toEqual([
+      { address: RECIPIENT, username: "alice", ts: 42 },
+      { address: "0xbeef", username: null, ts: 42 },
+    ]);
+  });
+});

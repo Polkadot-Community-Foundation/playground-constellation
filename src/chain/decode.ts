@@ -76,6 +76,20 @@ export function decodeFirstDomainAfterAddress(bytes: Uint8Array): string {
   return decodeStringAt(bytes, 20).value;
 }
 
+/**
+ * Decodes the recipient address from a v17 identity event payload
+ * (`IdentityEvent { recipient: Address(20), root_pubkey: [u8;32] }`). Only the
+ * leading 20-byte address is read; the 32-byte root tail is intentionally
+ * ignored (there is no String to decode — see IDENTITY_EVENTS). Returns a
+ * lowercase `0x…` H160.
+ */
+export function decodeIdentityRecipient(bytes: Uint8Array): `0x${string}` {
+  if (bytes.length < 20) {
+    throw new Error(`identity event payload too short: ${bytes.length} bytes`);
+  }
+  return addressHexAt(bytes, 0).value;
+}
+
 export interface PointPayload {
   recipient: `0x${string}`;
   domain: string;

@@ -18,6 +18,7 @@ import {
   addressHexAt,
   decodeCompactU32,
   decodeFirstDomainAfterAddress,
+  decodeIdentityRecipient,
   decodeModPoint,
   decodePointAward,
   decodeStarPoint,
@@ -109,5 +110,19 @@ describe("decodeModPoint", () => {
       modder: "0x" + "0b".repeat(20),
       modDomain: "my-ballot.dot",
     });
+  });
+});
+
+describe("decodeIdentityRecipient", () => {
+  // IdentityEvent = Address(20 recipient) ++ root_pubkey([u8;32]).
+  const root32 = Array(32).fill(0xcd);
+
+  it("reads the leading 20-byte recipient and ignores the 32-byte root tail", () => {
+    const b = bytes(addr(0xab), root32);
+    expect(decodeIdentityRecipient(b)).toBe("0x" + "ab".repeat(20));
+  });
+
+  it("throws on a payload shorter than 20 bytes", () => {
+    expect(() => decodeIdentityRecipient(Uint8Array.from(addr(0x01).slice(0, 19)))).toThrow();
   });
 });
