@@ -15,6 +15,7 @@
 
 import type { GraphSnapshot } from "../model/graph.ts";
 import { getChainHandle, type ChainMode } from "./client.ts";
+import { resolveNames } from "./names.ts";
 import type { AppEntryRaw, QueryResult, RegistryContract } from "./registryContract.ts";
 import type { LoadProgress } from "./source.ts";
 
@@ -22,7 +23,6 @@ const APP_PAGE = 50;
 const LINEAGE_PAGE = 100;
 const TOP_BUILDERS = 100;
 const STAT_CONCURRENCY = 20;
-const USERNAME_PAGE = 50;
 
 function ok<T>(r: QueryResult<T>): T | undefined {
   return r.success ? r.value : undefined;
@@ -80,7 +80,7 @@ export async function loadSnapshot(
   mode: ChainMode,
   onProgress?: (p: LoadProgress) => void,
 ): Promise<GraphSnapshot> {
-  const { registry } = await getChainHandle(mode);
+  const { registry, individuality } = await getChainHandle(mode);
 
   onProgress?.({ done: 0, total: 1, label: "reading apps" });
   const entries = await pageApps(registry);
@@ -122,23 +122,12 @@ export async function loadSnapshot(
   const top = ok(topRes) ?? [];
   const builders = top.map((b) => ({ address: b.account.toLowerCase(), xp: Number(b.score) }));
 
-  // Resolve usernames for the union of owners + top builders.
+  // Resolve display names for the union of owners + top builders: each address
+  // maps to its DotNS root (getRootAccounts) then to a People-chain username.
   const addrSet = new Set<string>();
   for (const a of apps) addrSet.add(a.owner);
   for (const b of builders) addrSet.add(b.address);
-  const addrs = [...addrSet];
-  const usernames: Record<string, string | null> = {};
-  // Chunk so a large owner set can't exceed a query size/gas cap; results are
-  // index-aligned with the input per chunk.
-  for (let i = 0; i < addrs.length; i += USERNAME_PAGE) {
-    const chunk = addrs.slice(i, i + USERNAME_PAGE);
-    const uRes = await registry.getUsernames.query(chunk as `0x${string}`[]);
-    const names = ok(uRes) ?? [];
-    chunk.forEach((a, j) => {
-      const n = names[j] ?? "";
-      usernames[a] = n === "" ? null : n;
-    });
-  }
+  const usernames = await resolveNames(registry, individuality, [...addrSet]);
 
   const buildersWithNames = builders.map((b) => ({ ...b, username: usernames[b.address] ?? null }));
 

@@ -20,6 +20,8 @@
 // handled gracefully — the source simply emits nothing.
 
 import { getChainHandle, type ChainMode } from "./client.ts";
+import { resolveNames } from "./names.ts";
+import type { IndividualityClient } from "./peopleIdentity.ts";
 import type { RegistryContract } from "./registryContract.ts";
 import { shortAddr } from "../model/graph.ts";
 import type { ConstellationHandlers, ConstellationSource, Highlight } from "./source.ts";
@@ -35,7 +37,10 @@ interface Snapshot {
   usernames: Map<string, string | null>;
 }
 
-async function readSnapshot(registry: RegistryContract): Promise<Snapshot> {
+async function readSnapshot(
+  registry: RegistryContract,
+  individuality: IndividualityClient | null,
+): Promise<Snapshot> {
   // App count comes from the apps page `total`, so two reads cover everything.
   const [topRes, appsRes] = await Promise.all([
     registry.getTopBuilders.query(0, TOP_BUILDER_LIMIT),
@@ -54,20 +59,12 @@ async function readSnapshot(registry: RegistryContract): Promise<Snapshot> {
   }));
   const appCount = appsPage ? appsPage.total : null;
 
-  // Resolve usernames for the union of leader + recent app owners.
+  // Resolve display names for the union of leader + recent app owners via the
+  // DotNS root -> People-chain username path.
   const addrs: string[] = [];
   if (leader) addrs.push(leader.address);
   for (const r of recent) if (!addrs.includes(r.owner)) addrs.push(r.owner);
-  const usernames = new Map<string, string | null>();
-  if (addrs.length > 0) {
-    const uRes = await registry.getUsernames.query(addrs as `0x${string}`[]);
-    if (uRes.success) {
-      addrs.forEach((a, i) => {
-        const n = uRes.value[i] ?? "";
-        usernames.set(a, n === "" ? null : n);
-      });
-    }
-  }
+  const usernames = new Map(Object.entries(await resolveNames(registry, individuality, addrs)));
 
   return { leader, recent, appCount, usernames };
 }
@@ -136,9 +133,9 @@ export function createHighlightsSource(mode: ChainMode): ConstellationSource {
       const tick = async (): Promise<void> => {
         if (cancelled) return;
         try {
-          const { registry } = await getChainHandle(mode);
+          const { registry, individuality } = await getChainHandle(mode);
           if (cancelled) return;
-          const snap = await readSnapshot(registry);
+          const snap = await readSnapshot(registry, individuality);
           if (cancelled) return;
           const ts = Date.now();
           for (const item of buildHighlights(snap, ts)) {

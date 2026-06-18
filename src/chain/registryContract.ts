@@ -55,7 +55,10 @@ export interface RegistryContract {
   getModCount: Query<[string], number | bigint>;
   getPinnedApps: Query<[], AppEntryRaw[]>;
   getTopBuilders: Query<[number, number], TopBuilderRaw[]>;
-  getUsernames: Query<[string[]], string[]>;
+  // v17 identity model: maps each address to its bound DotNS root pubkey
+  // (bytes32 hex; zero root = anonymous/unbound). Display names are resolved
+  // off-chain from the root via the People chain (see peopleIdentity.ts).
+  getRootAccounts: Query<[string[]], string[]>;
   // Present only once the lineage contract change is deployed + cdm-installed.
   getLineageCount?: Query<[], number | bigint>;
   getLineage?: Query<[number, number], LineageEntryRaw[]>;

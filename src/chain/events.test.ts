@@ -16,8 +16,8 @@
 import { describe, expect, it } from "vitest";
 import {
   EVENT_NAMES,
+  IDENTITY_EVENTS,
   TYPED_PAYLOAD_EVENTS,
-  USERNAME_EVENTS,
   eventNameForTopic,
   topicForEvent,
 } from "./events.ts";
@@ -27,16 +27,21 @@ describe("event registry", () => {
     expect(EVENT_NAMES).toContain("Published");
     expect(EVENT_NAMES).toContain("ModPointAwarded");
     expect(EVENT_NAMES).toContain("StarPointRefunded");
-    expect(EVENT_NAMES).toContain("UsernameSet");
-    expect(EVENT_NAMES).toContain("UsernameCleared");
+    expect(EVENT_NAMES).toContain("IdentityLinked");
+    expect(EVENT_NAMES).toContain("IdentityCleared");
     expect(EVENT_NAMES.length).toBe(15);
   });
 
-  it("marks the two username events", () => {
-    expect(USERNAME_EVENTS.has("UsernameSet")).toBe(true);
-    expect(USERNAME_EVENTS.has("UsernameCleared")).toBe(true);
-    expect(USERNAME_EVENTS.has("Published")).toBe(false);
-    expect(USERNAME_EVENTS.size).toBe(2);
+  it("no longer lists the removed v7 username events", () => {
+    expect(EVENT_NAMES).not.toContain("UsernameSet");
+    expect(EVENT_NAMES).not.toContain("UsernameCleared");
+  });
+
+  it("marks the two identity events", () => {
+    expect(IDENTITY_EVENTS.has("IdentityLinked")).toBe(true);
+    expect(IDENTITY_EVENTS.has("IdentityCleared")).toBe(true);
+    expect(IDENTITY_EVENTS.has("Published")).toBe(false);
+    expect(IDENTITY_EVENTS.size).toBe(2);
   });
 
   it("marks the six SCALE-typed payload events", () => {
