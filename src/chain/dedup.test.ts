@@ -14,8 +14,8 @@
 // limitations under the License.
 
 import { describe, expect, it } from "vitest";
-import type { NormalizedEvent } from "./types.ts";
-import { reduceEvents } from "./dedup.ts";
+import type { LogicalEvent, NormalizedEvent } from "./types.ts";
+import { createBlockDeduper, reduceEvents } from "./dedup.ts";
 
 const A = "0x" + "0a".repeat(20);
 const B = "0x" + "0b".repeat(20);
@@ -87,5 +87,56 @@ describe("reduceEvents", () => {
       ev({ name: "DeployPointAwarded", app: "a.dot", actor: A, blockKey: "100", seq: 1 }),
     ]);
     expect(out.map((e) => e.app)).toEqual(["a.dot", "b.dot"]);
+  });
+});
+
+const le = (partial: Partial<LogicalEvent> & Pick<LogicalEvent, "app" | "blockKey">): LogicalEvent => ({
+  kind: "deploy",
+  ...partial,
+});
+
+describe("createBlockDeduper", () => {
+  it("drops a (block, app) already emitted in a prior delivery", () => {
+    const dedupe = createBlockDeduper();
+    const first = le({ app: "chess.dot", blockKey: "100" });
+    expect(dedupe([first])).toHaveLength(1);
+    // The host re-delivers the same finalized block — must be dropped.
+    expect(dedupe([le({ app: "chess.dot", blockKey: "100" })])).toHaveLength(0);
+  });
+
+  it("dedupes repeats within a single delivery too", () => {
+    const dedupe = createBlockDeduper();
+    const out = dedupe([
+      le({ app: "chess.dot", blockKey: "100" }),
+      le({ app: "chess.dot", blockKey: "100" }),
+    ]);
+    expect(out).toHaveLength(1);
+  });
+
+  it("keeps the same app in a different block", () => {
+    const dedupe = createBlockDeduper();
+    dedupe([le({ app: "chess.dot", blockKey: "100" })]);
+    expect(dedupe([le({ app: "chess.dot", blockKey: "101" })])).toHaveLength(1);
+  });
+
+  it("keeps distinct apps in the same block", () => {
+    const dedupe = createBlockDeduper();
+    const out = dedupe([
+      le({ app: "chess.dot", blockKey: "100" }),
+      le({ app: "kudos.dot", blockKey: "100" }),
+    ]);
+    expect(out.map((e) => e.app)).toEqual(["chess.dot", "kudos.dot"]);
+  });
+
+  it("evicts the oldest key past capacity so the set stays bounded", () => {
+    const dedupe = createBlockDeduper(2);
+    dedupe([le({ app: "a.dot", blockKey: "1" })]); // [a@1]
+    dedupe([le({ app: "b.dot", blockKey: "2" })]); // [a@1, b@2]
+    dedupe([le({ app: "c.dot", blockKey: "3" })]); // evicts a@1 -> [b@2, c@3]
+    // b@2 and c@3 are still in the window (skipped, so no eviction either).
+    expect(dedupe([le({ app: "b.dot", blockKey: "2" })])).toHaveLength(0);
+    expect(dedupe([le({ app: "c.dot", blockKey: "3" })])).toHaveLength(0);
+    // a@1 fell out of the window, so it's allowed through again.
+    expect(dedupe([le({ app: "a.dot", blockKey: "1" })])).toHaveLength(1);
   });
 });

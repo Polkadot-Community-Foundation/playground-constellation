@@ -14,14 +14,14 @@
 // limitations under the License.
 
 /** Chain preset passed to getChainAPI (host-routed). */
-export const CHAIN = "paseo" as const;
+export const CHAIN = "summit" as const;
 
 /**
  * Asset Hub WS endpoint for the DEV-ONLY direct-RPC mode (VITE_USE_DIRECT=1),
  * used to view real data in a plain browser outside the host. The production
  * path inside Polkadot Desktop never uses this — it routes through the host.
  */
-export const ASSET_HUB_WS = "wss://paseo-asset-hub-next-rpc.polkadot.io";
+export const ASSET_HUB_WS = "wss://summit-asset-hub-rpc.polkadot.io";
 
 /**
  * Max nodes kept in the live graph. Bounds memory, the localStorage cache,
