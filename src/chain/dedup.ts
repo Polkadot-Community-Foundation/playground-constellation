@@ -47,6 +47,18 @@ function blockOrder(blockKey: string): number {
 }
 
 /**
+ * Identity key for a (block, app) action — the grouping unit shared by
+ * `reduceEvents` (collapse within a delivery) and `createBlockDeduper` (drop
+ * re-delivered blocks). A `:` separator is collision-proof here: `blockKey` is
+ * always digits (`String(block.number)`), so the first non-digit unambiguously
+ * ends it, leaving the key uniquely decodable even though the legacy-event path
+ * can decode `app` from arbitrary raw UTF-8 bytes.
+ */
+function eventKey(e: { blockKey: string; app: string }): string {
+  return `${e.blockKey}:${e.app}`;
+}
+
+/**
  * Collapse a list of decoded contract events into one LogicalEvent per
  * (block, app) action. A deploy or mod emits several raw events; this picks
  * the most specific kind (mod > deploy > publish-update) and keeps distinct
@@ -55,7 +67,7 @@ function blockOrder(blockKey: string): number {
 export function reduceEvents(events: NormalizedEvent[]): LogicalEvent[] {
   const groups = new Map<string, Group>();
   for (const e of events) {
-    const key = `${e.blockKey}${e.app}`;
+    const key = eventKey(e);
     let g = groups.get(key);
     if (!g) {
       g = { blockKey: e.blockKey, app: e.app, minSeq: e.seq, events: [] };
@@ -73,6 +85,39 @@ export function reduceEvents(events: NormalizedEvent[]): LogicalEvent[] {
   });
 
   return ordered.map((g) => reduceGroup(g));
+}
+
+/**
+ * Cross-delivery dedup for the live feed. `Revive.ContractEmitted.watch()`
+ * streams finalized blocks, but a host/WS reconnect on a long-running kiosk can
+ * re-deliver an already-seen finalized block. `reduceEvents` only collapses raw
+ * events *within* a single delivery, so without this the feed shows the same
+ * action as two identical rows. A reduced LogicalEvent is uniquely identified by
+ * `(blockKey, app)` — exactly `reduceEvents`' grouping key — so we drop any
+ * `(block, app)` pair we've already emitted. The seen-set is bounded (FIFO
+ * eviction) so a kiosk running for days can't grow it without limit; the window
+ * is far larger than any plausible reconnect replay.
+ */
+export function createBlockDeduper(
+  capacity = 4096,
+): (events: LogicalEvent[]) => LogicalEvent[] {
+  const seen = new Set<string>();
+  const order: string[] = [];
+  return (events) => {
+    const out: LogicalEvent[] = [];
+    for (const e of events) {
+      const key = eventKey(e);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      order.push(key);
+      if (order.length > capacity) {
+        const evicted = order.shift();
+        if (evicted !== undefined) seen.delete(evicted);
+      }
+      out.push(e);
+    }
+    return out;
+  };
 }
 
 function reduceGroup(g: Group): LogicalEvent {
