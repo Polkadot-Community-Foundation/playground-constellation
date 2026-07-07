@@ -29,7 +29,7 @@ export const ZERO_ROOT = ("0x" + "00".repeat(32)) as `0x${string}`;
 
 /**
  * Decoded value of `Resources.Consumers` on the People/Individuality chain
- * (paseo_individuality). The usernames are raw UTF-8 byte arrays, NOT decoded
+ * (summit_individuality). The usernames are raw UTF-8 byte arrays, NOT decoded
  * strings: `full_username` is optional, `lite_username` may be empty. Only the
  * two fields we read are modelled; a wide structural type keeps the resolver
  * unit-testable with a mock and decoupled from the generated descriptor.

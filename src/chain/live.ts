@@ -15,7 +15,7 @@
 
 import { getChainHandle, type ChainMode } from "./client.ts";
 import { decodeIdentityRecipient, decodeModPoint, decodePointAward, decodeStarPoint } from "./decode.ts";
-import { reduceEvents } from "./dedup.ts";
+import { createBlockDeduper, reduceEvents } from "./dedup.ts";
 import {
   eventNameForTopic,
   IDENTITY_EVENTS,
@@ -128,6 +128,11 @@ export function subscribeLive(mode: ChainMode, handlers: ConstellationHandlers):
       if (cancelled) return;
       const target = registryAddress.toLowerCase();
 
+      // Drop finalized blocks the host re-delivers (reconnects), which would
+      // otherwise surface the same action as a duplicate feed row. Lives for the
+      // life of this subscription so it spans deliveries. See createBlockDeduper.
+      const dedupeBlocks = createBlockDeduper();
+
       // Recipients of identity events seen since the last debounced flush.
       const pending = new Set<string>();
       const scheduleRelabel = (): void => {
@@ -176,7 +181,7 @@ export function subscribeLive(mode: ChainMode, handlers: ConstellationHandlers):
           if (batch.length === 0) return;
           const ts = Date.now();
           if (onEvent) {
-            for (const le of reduceEvents(batch)) onEvent({ event: le, ts });
+            for (const le of dedupeBlocks(reduceEvents(batch))) onEvent({ event: le, ts });
           }
         },
         error: (err: unknown) => warnThrottled("[constellation] subscription error", err),

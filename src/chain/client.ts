@@ -20,7 +20,7 @@ import { ss58Encode } from "@parity/product-sdk-address";
 import { createClient, type PolkadotClient, type TypedApi } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws";
 import cdmJson from "../../cdm.json" with { type: "json" };
-import { ASSET_HUB_WS, CHAIN, REGISTRY_PACKAGE } from "../config.ts";
+import { ASSET_HUB_WS, CHAIN, REGISTRY_META_ADDRESS, REGISTRY_PACKAGE } from "../config.ts";
 import type { IndividualityClient } from "./peopleIdentity.ts";
 import type { QueryResult, RegistryContract } from "./registryContract.ts";
 
@@ -72,17 +72,22 @@ async function build(mode: ChainMode): Promise<ChainHandle> {
     api = raw.getTypedApi(summit_asset_hub);
   }
   // Resolve the registry address LIVE from the on-chain CDM meta-registry
-  // (cdm.json.registry) rather than trusting the pinned snapshot address. The
-  // snapshot still supplies the ABI; only the address is resolved fresh, so the
-  // kiosk always reads the latest deployed registry even when cdm.json is stale.
-  // Mirrors playground-cli's registry access. Read-only here, so no signer is
-  // wired in. fromLiveClient performs a getAddress dry-run against the meta-
-  // registry; if that fails we throw rather than silently fall back to the
-  // (possibly stale) snapshot address.
+  // rather than trusting the pinned snapshot address. The snapshot still
+  // supplies the ABI; only the address is resolved fresh, so the kiosk always
+  // reads the latest deployed registry even when cdm.json is stale. Mirrors
+  // playground-cli's registry access. Read-only here, so no signer is wired in.
+  // fromLiveClient performs a getAddress dry-run against the meta-registry; if
+  // that fails we throw rather than silently fall back to the snapshot address.
+  //
+  // The meta-registry address is ENV-SPECIFIC and we inject summit's explicitly
+  // (REGISTRY_META_ADDRESS) instead of relying on cdm.json.registry — that
+  // baked value is paseo's, and resolving it on the summit chain finds an empty
+  // registry (no apps). See config.ts and playground-cli/src/utils/registry.ts.
   let manager: ContractManager;
   try {
     manager = await ContractManager.fromLiveClient(cdmJson as unknown as CdmJson, raw, summit_asset_hub, {
       libraries: [REGISTRY_PACKAGE],
+      registryAddress: REGISTRY_META_ADDRESS,
       defaultOrigin: readOrigin(),
     });
   } catch (err) {
@@ -102,7 +107,7 @@ async function build(mode: ChainMode): Promise<ChainHandle> {
   console.info(
     `[constellation] reading ${REGISTRY_PACKAGE} (mode=${mode}) → live address ${registryAddress}`,
     `| cdm.json snapshot: v${pinned?.version} @ ${pinned?.address}`,
-    `| meta-registry ${snapshot.registry}`,
+    `| meta-registry ${REGISTRY_META_ADDRESS} (cdm.json.registry ${snapshot.registry} ignored — env-specific)`,
     registryAddress.toLowerCase() === pinned?.address?.toLowerCase()
       ? "(live matches snapshot)"
       : "(live DIFFERS from snapshot — snapshot is stale)",
