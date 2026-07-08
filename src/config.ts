@@ -20,7 +20,10 @@
  * in-host path resolves the Summit Asset Hub descriptor (genesis 0xf388dc6d…) —
  * no Paseo genesis baked in. Matches playground-app-community.
  */
-export const CHAIN = "summit" as const;
+export const CHAIN = "paseo" as const;
+
+/** PCF CDM meta-registry on AH-next 1500 — resolves @w3s/playground-registry. */
+export const REGISTRY_META_ADDRESS = "0x59b0245778917af55224e5f8fb55f7f8d452619f";
 
 /**
  * Asset Hub WS endpoint for the direct-RPC mode (VITE_USE_DIRECT=1).
@@ -33,7 +36,7 @@ export const CHAIN = "summit" as const;
  * path (getChainAPI(CHAIN)) is also Summit-correct now; direct mode is the
  * deliberate kiosk choice, no longer a workaround for a missing descriptor.
  */
-export const ASSET_HUB_WS = "wss://summit-asset-hub-rpc.polkadot.io";
+export const ASSET_HUB_WS = "wss://paseo-asset-hub-next-rpc.polkadot.io";
 
 /**
  * Max nodes kept in the live graph. Bounds memory, the localStorage cache,
