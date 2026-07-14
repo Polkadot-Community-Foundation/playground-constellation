@@ -47,14 +47,14 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1
       '@polkadot-community-foundation/product-sdk-chain-client':
-        specifier: 0.7.7
-        version: 0.7.7(esbuild@0.28.0)(rxjs@7.8.2)
+        specifier: 0.7.8
+        version: 0.7.8(esbuild@0.28.0)(rxjs@7.8.2)
       '@polkadot-community-foundation/product-sdk-descriptors':
         specifier: 0.6.2
         version: 0.6.2(esbuild@0.28.0)(rxjs@7.8.2)
       '@polkadot-community-foundation/product-sdk-host':
-        specifier: 0.12.0
-        version: 0.12.0(esbuild@0.28.0)(rxjs@7.8.2)
+        specifier: 0.12.1
+        version: 0.12.1(esbuild@0.28.0)(rxjs@7.8.2)
       '@polkadot-labs/hdkd-helpers':
         specifier: ^0.0.30
         version: 0.0.30
@@ -733,8 +733,8 @@ packages:
     peerDependencies:
       rxjs: '>=7.8.0'
 
-  '@polkadot-community-foundation/product-sdk-chain-client@0.7.7':
-    resolution: {integrity: sha512-zgVsa7I+OICc50whyj53B9sCWjgFfEtFBIK0Xt6L5n6VSUhE3MMNbELmF8zwoSwdQU60yoTHLglDI96LuR76pw==}
+  '@polkadot-community-foundation/product-sdk-chain-client@0.7.8':
+    resolution: {integrity: sha512-MqfoGKAgaskDZQagQV7zvW3VDjC2fuIN/+fmIAZCTXIR3Il68mgfgLJtYWFuyHDJiULQQpw+tUZm+v7UsCy6pA==}
 
   '@polkadot-community-foundation/product-sdk-descriptors@0.6.2':
     resolution: {integrity: sha512-PC1zGIsYaTFT6NMs6D2vS63iLNfACMs8aOMAAMcDZUm/5mmuWzFprHNXk4ZDA8VbIsLiijsrOJDDiJTl74Z5Eg==}
@@ -742,8 +742,8 @@ packages:
   '@polkadot-community-foundation/product-sdk-errors@0.1.0':
     resolution: {integrity: sha512-CedKvEFMYfkBn1uPeI99v4HAdIMSJNqBQjs0jJ5mwEVHvlOn3pru1UMjyvdgUb1aaPmwMkiR95EquvC6Zqq/QA==}
 
-  '@polkadot-community-foundation/product-sdk-host@0.12.0':
-    resolution: {integrity: sha512-RNRlFSTq5WRy/0Oj/yXj3qLiiQFBKikXuimAAPtwIXnN22ZRLh+fntyj5XhHtBxID9oWSK8oF7E2v6pJhD6WoQ==}
+  '@polkadot-community-foundation/product-sdk-host@0.12.1':
+    resolution: {integrity: sha512-5Sd8uUfPsjsJOIxYCmwjeH6tIP3i0FskTCK7b3Zjcn5gyFnZO61LTBSjNtGs+ztN32ehOnxvG39RYF28tsipGg==}
 
   '@polkadot-community-foundation/result@0.1.0':
     resolution: {integrity: sha512-7mEbDR8Vq06j9auDT7mOR4fDgKm7qWOZYRBoeovYGL+ZqD8r0o2/AUZz5OGa6SQgmXi27Pdl1fTqhG2TCfxEaw==}
@@ -2824,11 +2824,11 @@ snapshots:
       '@polkadot-api/utils': 0.4.0
       rxjs: 7.8.2
 
-  '@polkadot-community-foundation/product-sdk-chain-client@0.7.7(esbuild@0.28.0)(rxjs@7.8.2)':
+  '@polkadot-community-foundation/product-sdk-chain-client@0.7.8(esbuild@0.28.0)(rxjs@7.8.2)':
     dependencies:
       '@parity/product-sdk-logger': 0.1.1
       '@polkadot-community-foundation/product-sdk-descriptors': 0.6.2(esbuild@0.28.0)(rxjs@7.8.2)
-      '@polkadot-community-foundation/product-sdk-host': 0.12.0(esbuild@0.28.0)(rxjs@7.8.2)
+      '@polkadot-community-foundation/product-sdk-host': 0.12.1(esbuild@0.28.0)(rxjs@7.8.2)
       polkadot-api: 2.1.6(esbuild@0.28.0)(rxjs@7.8.2)
     transitivePeerDependencies:
       - bufferutil
@@ -2849,7 +2849,7 @@ snapshots:
 
   '@polkadot-community-foundation/product-sdk-errors@0.1.0': {}
 
-  '@polkadot-community-foundation/product-sdk-host@0.12.0(esbuild@0.28.0)(rxjs@7.8.2)':
+  '@polkadot-community-foundation/product-sdk-host@0.12.1(esbuild@0.28.0)(rxjs@7.8.2)':
     dependencies:
       '@parity/product-sdk-logger': 0.1.1
       '@parity/truapi': 0.3.2
