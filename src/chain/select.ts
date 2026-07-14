@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { isInsideContainerSync } from "@parity/product-sdk-host";
+import { isInsideContainerSync } from "@polkadot-community-foundation/product-sdk-host";
 import { createChainSource } from "./liveSource.ts";
 import { createHighlightsSource } from "./highlights.ts";
 import { withExcludedDomains } from "./filter.ts";

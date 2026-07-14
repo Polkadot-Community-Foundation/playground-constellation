@@ -14,13 +14,13 @@
 // limitations under the License.
 
 /**
- * Chain preset passed to getChainAPI (host-routed path). Summit is the target:
- * @parity/product-sdk-chain-client (>=0.7.0) ships a `summit` environment and
- * @parity/product-sdk-descriptors (>=0.6.0) exports `summit-asset-hub`, so the
- * in-host path resolves the Summit Asset Hub descriptor (genesis 0xf388dc6d…) —
- * no Paseo genesis baked in. Matches playground-app-community.
+ * Chain preset passed to getChainAPI (host-routed path). Devnet is the target:
+ * @polkadot-community-foundation/product-sdk-chain-client ships a `devnet`
+ * environment and @polkadot-community-foundation/product-sdk-descriptors exports
+ * `devnet-asset-hub`, so the in-host path resolves the devnet Asset Hub
+ * descriptor. Consumes the PCF-scoped rescope of product-sdk `feat/devnet-env`.
  */
-export const CHAIN = "paseo" as const;
+export const CHAIN = "devnet" as const;
 
 /** PCF CDM meta-registry on AH-next 1500 — resolves @w3s/playground-registry. */
 export const REGISTRY_META_ADDRESS = "0x59b0245778917af55224e5f8fb55f7f8d452619f";
@@ -29,12 +29,15 @@ export const REGISTRY_META_ADDRESS = "0x59b0245778917af55224e5f8fb55f7f8d452619f
  * Asset Hub WS endpoint for the direct-RPC mode (VITE_USE_DIRECT=1).
  *
  * The deployed kiosk bundle forces direct mode via .env.production so it shows
- * real Summit data in a plain browser / via the IPFS gateway, outside Polkadot
- * Desktop (a big-screen kiosk is not necessarily inside the host). The typed
- * API is built from the Summit descriptor (client.ts → summit_asset_hub), so
- * direct mode decodes Summit's own runtime — not Paseo metadata. The in-host
- * path (getChainAPI(CHAIN)) is also Summit-correct now; direct mode is the
- * deliberate kiosk choice, no longer a workaround for a missing descriptor.
+ * real data in a plain browser / via the IPFS gateway, outside Polkadot Desktop
+ * (a big-screen kiosk is not necessarily inside the host). The typed API is now
+ * built from the devnet descriptor (client.ts → devnet_asset_hub), so direct
+ * mode must point at the devnet Asset Hub RPC to decode the right runtime.
+ *
+ * TODO(devnet): this still points at the paseo-asset-hub-next RPC. Repoint it at
+ * the devnet Asset Hub RPC (register: summit-net-deployments) before the direct-
+ * mode kiosk bundle ships, or direct mode will decode devnet types off the wrong
+ * chain. Blocked with the rest of this PR on the PCF-scoped publish.
  */
 export const ASSET_HUB_WS = "wss://paseo-asset-hub-next-rpc.polkadot.io";
 

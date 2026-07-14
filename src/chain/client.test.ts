@@ -32,15 +32,15 @@ const getChainAPI = vi.fn<(...args: unknown[]) => unknown>().mockResolvedValue(h
 // Stub the whole chain stack so build() never opens a socket. `host` mode goes
 // through getChainAPI; `direct` mode through createClient → getTypedApi. Both
 // funnel into the single ContractManager.fromLiveClient call we assert on.
-vi.mock("@parity/product-sdk-chain-client", () => ({
+vi.mock("@polkadot-community-foundation/product-sdk-chain-client", () => ({
   getChainAPI: (...args: unknown[]) => getChainAPI(...args),
 }));
 vi.mock("polkadot-api", () => ({
   createClient: () => ({ getTypedApi: () => ({}) }),
 }));
 vi.mock("polkadot-api/ws", () => ({ getWsProvider: () => ({}) }));
-vi.mock("@parity/product-sdk-descriptors/summit-asset-hub", () => ({
-  summit_asset_hub: {},
+vi.mock("@polkadot-community-foundation/product-sdk-descriptors/devnet-asset-hub", () => ({
+  devnet_asset_hub: {},
 }));
 vi.mock("@parity/product-sdk-address", () => ({ ss58Encode: () => "5Origin" }));
 vi.mock("@parity/product-sdk-contracts", () => ({
